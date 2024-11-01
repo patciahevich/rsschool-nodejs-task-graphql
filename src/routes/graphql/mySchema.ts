@@ -5,7 +5,6 @@ import {
   GraphQLID,
   GraphQLInt,
   GraphQLFloat,
-  GraphQLInterfaceType,
   GraphQLList,
   GraphQLObjectType,
   GraphQLSchema,
@@ -38,17 +37,17 @@ const MemberTypeInterface = new GraphQLObjectType({
   },
 });
 
-const UserInterface = new GraphQLInterfaceType({
-  name: 'Account',
+const UserInterface = new GraphQLObjectType({
+  name: 'User',
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    balance: { type: GraphQLInt },
+    balance: { type: GraphQLFloat },
   },
 });
 
-const ProfileInterface = new GraphQLInterfaceType({
-  name: 'Member',
+const ProfileInterface = new GraphQLObjectType({
+  name: 'Profile',
   fields: {
     id: { type: GraphQLID },
     isMale: { type: GraphQLBoolean },
@@ -58,7 +57,7 @@ const ProfileInterface = new GraphQLInterfaceType({
   },
 });
 
-const PostInterface = new GraphQLInterfaceType({
+const PostInterface = new GraphQLObjectType({
   name: 'Post',
   fields: {
     id: { type: GraphQLID },
@@ -76,7 +75,6 @@ const MemberQuery = {
       id: { type: MemberTypeIdEnum },
     },
     resolve: async (parent, args: { id: string }, context: GqlContext) => {
-      // return 'hello wdwdw';
       return await context.prisma.memberType.findUnique({
         where: { id: args.id },
       });
@@ -98,15 +96,17 @@ const PostQuery = {
     args: {
       postId: { type: GraphQLString },
     },
-    resolve: () => {
-      return 'Post';
+    resolve: async (parent, args: { postId: string }, context: GqlContext) => {
+      return context.prisma.post.findUnique({
+        where: { id: args.postId },
+      });
     },
   },
   posts: {
     type: new GraphQLList(PostInterface),
     description: 'All posts',
-    resolve: () => {
-      return 'All posts';
+    resolve: (parent, _args, context: GqlContext) => {
+      return context.prisma.post.findMany();
     },
   },
 };
@@ -118,14 +118,18 @@ const UserQuery = {
     args: {
       userId: { type: GraphQLString },
     },
-    resolve: (parent, args: { userId: string }) => {
-      return `User with id ${args.userId}`;
+    resolve: async (parent, args: { userId: string }, context: GqlContext) => {
+      return context.prisma.user.findUnique({
+        where: { id: args.userId },
+      });
     },
   },
   users: {
     type: new GraphQLList(UserInterface),
     description: 'All users',
-    resolve: () => 'All users',
+    resolve: (parent, args, context: GqlContext) => {
+      return context.prisma.user.findMany();
+    },
   },
 };
 
@@ -136,14 +140,18 @@ const ProfileQuery = {
     args: {
       profileId: { type: GraphQLString },
     },
-    resolve: (parent, args: { profileId: string }) => {
-      return `User with id ${args.profileId}`;
+    resolve: (parent, args: { profileId: string }, context: GqlContext) => {
+      return context.prisma.profile.findUnique({
+        where: { id: args.profileId },
+      });
     },
   },
   profiles: {
     type: new GraphQLList(ProfileInterface),
     description: 'All profiles',
-    resolve: () => 'All profiles',
+    resolve: (parent, args, context: GqlContext) => {
+      return context.prisma.profile.findMany();
+    },
   },
 };
 
