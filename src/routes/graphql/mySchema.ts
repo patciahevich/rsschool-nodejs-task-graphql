@@ -1,6 +1,11 @@
 import { GraphQLObjectType, GraphQLSchema } from 'graphql';
 
-import { PostMutation } from './mutation.js';
+import {
+  PostMutation,
+  ProfileMutation,
+  SubscribeMutation,
+  UserMutation,
+} from './mutation.js';
 import { StatQuery, MemberQuery, PostQuery, UserQuery, ProfileQuery } from './query.js';
 
 export default new GraphQLSchema({
@@ -20,6 +25,9 @@ export default new GraphQLSchema({
     description: 'Root mutation',
     fields: {
       ...PostMutation,
+      ...UserMutation,
+      ...ProfileMutation,
+      ...SubscribeMutation,
     },
   }),
 });
